@@ -63,3 +63,4 @@ ax.axvline(t_smart, c='gray', ls='--', label='Cream: T=65')
 
 ax.legend(loc='best')
 fig.tight_layout()
+fig.show()

@@ -3,8 +3,9 @@
 '''
 Lab 1: Wildfire Model
 This file contains tools and scripts for completing Lab 1 for CLaSP 410.
-To reproduce the plots shown in the lab report, run the function creat_model()
-with the desired kwarg values.
+To reproduce the plots shown in the lab report, run forest_model.py. The 
+code for each experiment is included in this file. Alternatively, run the 
+function creat_model() with the desired kwarg values. 
 '''
 
 # Import libraries

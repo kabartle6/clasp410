@@ -71,21 +71,47 @@ def solve_rk8(func, N1_init=.5, N2_init=.5, dT=10, t_final=100.0,
     return time, N1, N2
     
 
-time, N1, N2 = euler_solve(dNdt_comp)
-plt.ion()
-fig,ax = plt.subplots(1,1)
-ax.plot(time, N1, label='N1')
-ax.plot(time, N2, label='N2')
-plt.xlabel('Time')
-plt.ylabel('Population Size')
-plt.title('Population Size of Competing Species')
-plt.legend()
+def question1(dT_comp=1, dT_pred=0.05):
+    '''
+    Create plots that answer question 1 of the lab by using the Euler and RK8 
+    models to solve and plot the Lotka-Voltera competitiion and predator prey 
+    models with initial conditions a = 1, b = 2, c = 1, d = 3, N1 = 0.3, 
+    N2 = 0.6 and the givin dT.
+    Parameters
+    ----------
+    dT_comp : dT that will be used for the competition model
+    dT_pred : dT that will be used for the predator prey model
+    '''
+    # Solve for the two competing population sizes over time using Euler
+    time, N1, N2 = euler_solve(dNdt_comp, dT=dT_comp, N1_init=0.3, N2_init=0.6)
+    # Plot
+    plt.ion()
+    fig,ax = plt.subplots(1,1)
+    ax.plot(time, N1, label='N1 Euler', color='orange')
+    ax.plot(time, N2, label='N2 Euler', color='blue')
+    # Solve for the two competing population sizes over time using RK8
+    time, N1, N2 = solve_rk8(dNdt_comp, dT=dT_comp, N1_init=0.3, N2_init=0.6)
+    ax.plot(time, N1, label='N1 RK8', color='orange', ls='--')
+    ax.plot(time, N2, label='N2 RK8', color='blue', ls='--')
+    plt.xlabel('Time')
+    plt.ylabel('Population Size')
+    plt.title('Lotka-Voltera Competition Model\na=1, b=2, c=1, d=3')
+    plt.legend()
+    fig.savefig(f'Competition{dT_comp}.png') #Save figure
 
-time, N1, N2 = solve_rk8(dNdt_pred)
-fig,ax = plt.subplots(1,1)
-ax.plot(time, N1, label='Bunnies')
-ax.plot(time, N2, label='Foxes')
-plt.xlabel('Time')
-plt.ylabel('Population Size')
-plt.title('Population Size of Foxes and Bunnies')
-plt.legend()
+    # Solve for the predator and prey population sizes over time using Euler
+    time, N1, N2 = euler_solve(dNdt_pred, dT=dT_pred, N1_init=0.3, N2_init=0.6)
+    # Plot
+    fig,ax = plt.subplots(1,1)
+    ax.plot(time, N1, label='N1 (Prey) Euler', color='blue')
+    ax.plot(time, N2, label='N2 (Predator) Euler', color='orange')
+    # Solve for the predator and prey population sizes over time using RK8
+    time, N1, N2 = solve_rk8(dNdt_pred, dT=dT_pred, N1_init=0.3, N2_init=0.6)
+    ax.plot(time, N1, label='N1 (Prey) RK8', color='blue', ls='--')
+    ax.plot(time, N2, label='N2 (Predator) RK8', color='orange', ls='--')
+    plt.xlabel('Time (years)')
+    plt.ylabel('Population/Varrying Cap.')
+    plt.title('Lotka-Voltera Competition Model\na=1, b=2, c=1, d=3')
+    plt.legend()
+    fig.savefig(f'PredPrey{dT_pred}.png') # Save figure
+    return

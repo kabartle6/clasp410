@@ -1,15 +1,71 @@
 #!/usr/bin/env python3
+
+'''
+Lab 2: Population Control
+
+The Lotka-Volterra competition and predator/prey coupled ODEs are solved 
+using Euler's method (euler_solve()) and using RK8 (solve_rk8()). 
+verification() is used to create the plots for question 1, competition() 
+is used to create the plots for question 2, and predprey() is used to create 
+the plots for question 3.
+'''
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
-
 def dNdt_comp(t, N, a=1,b=2,c=1,d=3):
+    '''
+    This function calculates the Lotka-Volterra competition equations for
+    two species. Given normalized populations, `N1` and `N2`, as well as the
+    four coefficients representing population growth and decline,
+    calculate the time derivatives dN_1/dt and dN_2/dt and return to the
+    caller.
+    This function accepts `t`, or time, as an input parameter to be
+    compliant with Scipy's ODE solver. However, it is not used in this
+    function.
+    Parameters
+    ----------
+    t : float
+        The current time (not used here).
+    N : two-element list
+        The current value of N1 and N2 as a list (e.g., [N1, N2]).
+    a, b, c, d : float, defaults=1, 2, 1, 3
+        The value of the Lotka-Volterra coefficients.
+    Returns
+    -------
+    dN1dt, dN2dt : floats
+        The time derivatives of `N1` and `N2`.
+    '''
+    # Here, N is a two-element list such that N1=N[0] and N2=N[1]
     dN1 = a*N[0]*(1 - N[0]) - b*N[0]*N[1]
     dN2 = c*N[1]*(1 - N[1]) - d*N[0]*N[1]
     return dN1, dN2
 
 def dNdt_pred(t, N, a=1,b=2,c=1,d=3):
+    '''
+    This function calculates the Lotka-Volterra predator/prey equations for
+    two species. Given a normalized "prey" population, `N1` and "predator" 
+    population, `N2`, as well as the four coefficients representing 
+    population growth and decline, calculate the time derivatives dN_1/dt 
+    and dN_2/dt and return to the caller.
+    This function accepts `t`, or time, as an input parameter to be
+    compliant with Scipy's ODE solver. However, it is not used in this
+    function.
+    Parameters
+    ----------
+    t : float
+        The current time (not used here).
+    N : two-element list
+        The current value of N1 and N2 as a list (e.g., [N1, N2]).
+    a, b, c, d : float, defaults=1, 2, 1, 3
+        The value of the Lotka-Volterra coefficients.
+    Returns
+    -------
+    dN1dt, dN2dt : floats
+        The time derivatives of `N1` and `N2`.
+    '''
+    # Here, N is a two-element list such that N1=N[0] and N2=N[1]
     dN1 = a*N[0]-b*N[0]*N[1]
     dN2 = -c*N[1]+d*N[0]*N[1]
     return dN1, dN2
@@ -39,15 +95,19 @@ def euler_solve(func, N1_init=.5, N2_init=.5, dT=.1, t_final=100.0,
     N1, N2 : Numpy arrays
         Normalized population density solutions.
     '''
+    # Create time array from 0 to t_final with stepsize dT
     time = np.arange(0,t_final,dT)
-    N1 = np.zeros(len(time))
-    N2 = np.zeros(len(time))
+    # Initialize array for N1 population
+    N1 = np.zeros(len(time)) 
     N1[0] = N1_init
+    # Initialize array for N2 population
+    N2 = np.zeros(len(time)) 
     N2[0] = N2_init
     for i in range(1, time.size):
-        dN1, dN2 = func(i, [N1[i-1], N2[i-1]], a=a,b=b,c=c,d=d)
-        N1[i] = N1[i-1] + dT*dN1
-        N2[i] = N2[i-1] + dT*dN2
+        dN1, dN2 = func(i, [N1[i-1], N2[i-1]], a=a,b=b,c=c,d=d) # Find derivatives
+        # Euler
+        N1[i] = N1[i-1] + dT*dN1 
+        N2[i] = N2[i-1] + dT*dN2 
     return time, N1, N2
 
 def solve_rk8(func, N1_init=.5, N2_init=.5, dT=10, t_final=100.0,
@@ -101,7 +161,6 @@ def verification(dT_comp=1, dT_pred=0.05):
     # Solve for the two competing population sizes over time using Euler
     time, N1, N2 = euler_solve(dNdt_comp, dT=dT_comp, N1_init=0.3, N2_init=0.6)
     # Plot
-    plt.ion()
     fig,ax = plt.subplots(1,1)
     ax.plot(time, N1, label='N1 Euler', color='orange')
     ax.plot(time, N2, label='N2 Euler', color='blue')
@@ -148,7 +207,6 @@ def competition(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     time, N1, N2 = euler_solve(dNdt_comp, dT=1, N1_init=N1_init, N2_init=N2_init,
                                a=a,b=b,c=c,d=d)
     # Plot
-    plt.ion()
     fig,ax = plt.subplots(1,1)
     ax.plot(time, N1, label='N1 Euler', color='orange')
     ax.plot(time, N2, label='N2 Euler', color='blue')
@@ -184,7 +242,6 @@ def predprey(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     time2, N1_rk8, N2_rk8 = solve_rk8(dNdt_pred, dT=0.05, N1_init=N1_init, N2_init=N2_init,
                              a=a,b=b,c=c,d=d)
     # Plot population size over time
-    plt.ion()
     fig,ax = plt.subplots(1,1)
     ax.plot(time, N1_euler, label='N1 (Prey) Euler', color='orange')
     ax.plot(time, N2_euler, label='N2 (Predator) Euler', color='blue')

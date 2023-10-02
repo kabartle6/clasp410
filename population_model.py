@@ -148,7 +148,7 @@ def solve_rk8(func, N1_init=.5, N2_init=.5, dT=10, t_final=100.0,
 def verification(dT_comp=1, dT_pred=0.05):
     '''
     Create plots that answer question 1 of the lab by using the Euler and RK8 
-    models to solve and plot the Lotka-Voltera competitiion and predator prey 
+    models to solve and plot the Lotka-Volterra competitiion and predator prey 
     models with initial conditions a = 1, b = 2, c = 1, d = 3, N1 = 0.3, 
     N2 = 0.6, T_final = 100 years and the givin dT.
     Parameters
@@ -170,7 +170,7 @@ def verification(dT_comp=1, dT_pred=0.05):
     ax.plot(time, N2, label='N2 RK8', color='blue', ls='--')
     plt.xlabel('Time')
     plt.ylabel('Population Size')
-    plt.title('Lotka-Voltera Competition Model\na=1, b=2, c=1, d=3')
+    plt.title('Lotka-Volterra Competition Model\na=1, b=2, c=1, d=3')
     plt.legend()
     fig.savefig(f'Competition{dT_comp}.png') # Save figure
 
@@ -186,7 +186,7 @@ def verification(dT_comp=1, dT_pred=0.05):
     ax.plot(time, N2, label='N2 (Predator) RK8', color='blue', ls='--')
     plt.xlabel('Time (years)')
     plt.ylabel('Population/Varrying Cap.')
-    plt.title('Lotka-Voltera Predator Prey Model\na=1, b=2, c=1, d=3')
+    plt.title('Lotka-Volterra Predator Prey Model\na=1, b=2, c=1, d=3')
     plt.legend()
     fig.savefig(f'PredPrey{dT_pred}.png') # Save figure
     return
@@ -194,7 +194,7 @@ def verification(dT_comp=1, dT_pred=0.05):
 def competition(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     '''
     Create plots that answer question 2 of the lab by using the Euler and RK8 
-    models to solve and plot the Lotka-Voltera competitiion model with the
+    models to solve and plot the Lotka-Volterra competitiion model with the
     initial conditions passed in. T_finial is 100 years and dT is 1.
     Parameters
     ----------
@@ -217,7 +217,7 @@ def competition(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     ax.plot(time, N2, label='N2 RK8', color='blue', ls='--')
     plt.xlabel('Time')
     plt.ylabel('Population Size')
-    plt.title(f'Lotka-Voltera Competition Model\na={a}, b={b}, c={c}, d={d}')
+    plt.title(f'Lotka-Volterra Competition Model\na={a}, b={b}, c={c}, d={d}')
     plt.legend()
     fig.savefig(f'Competition{a}{b}{c}{d}_{N1_init},{N2_init}.png') # Save figure
     return
@@ -226,7 +226,7 @@ def predprey(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     '''
     Create plots for both time vs population size and prey population vs 
     predator population to answer question 3 of the lab by using the Euler and RK8 
-    models to solve and plot the Lotka-Voltera predator prey model with the
+    models to solve and plot the Lotka-Volterra predator prey model with the
     initial conditions passed in. T_finial is 100 years and dT is 0.005.
     Parameters
     ----------
@@ -249,7 +249,7 @@ def predprey(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     ax.plot(time2, N2_rk8, label='N2 (Predator) RK8', color='blue', ls='--')
     plt.xlabel('Time')
     plt.ylabel('Population Size')
-    plt.title(f'Lotka-Voltera Predator Prey Model\na={a}, b={b}, c={c}, d={d}')
+    plt.title(f'Lotka-Volterra Predator Prey Model\na={a}, b={b}, c={c}, d={d}')
     plt.legend()
     fig.savefig(f'Predprey{a}{b}{c}{d}_{N1_init},{N2_init}.png') # Save figure
     # Plot population phase diagram
@@ -258,7 +258,7 @@ def predprey(N1_init=0.3,N2_init=0.6,a=1,b=2,c=1,d=3):
     ax.plot(N1_rk8, N2_rk8, label='RK8', color='blue', ls='--')
     plt.xlabel('N1 (Prey) Population')
     plt.ylabel('N2 (Predator) Population')
-    plt.title(f'Lotka-Voltera Predator Prey Phase Diagram\na={a}, b={b}, c={c}, d={d}')
+    plt.title(f'Lotka-Volterra Predator Prey Phase Diagram\na={a}, b={b}, c={c}, d={d}')
     plt.legend()
     fig.savefig(f'PhaseDiagram{a}{b}{c}{d}_{N1_init},{N2_init}.png') # Save figure
     return

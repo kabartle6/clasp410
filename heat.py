@@ -152,15 +152,21 @@ def test():
     # Get solution using your solver:
     x, time, heat = heat_solve()
 
+    max_error = (heat-solution).max()
+    
     # Create a figure/axes object
     fig, axes = plt.subplots(1, 1)
     # Create a color map and add a color bar.
-    map = axes.matshow(heat)
+    map = axes.pcolor(time, x, heat, cmap='Purples_r')
     plt.colorbar(map, ax=axes, label='Temperature ($C$)')
+    plt.title('Validating Solver 1D Heat Diffusivity')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Spacial Step')
     plt.savefig('test.png')
-
-    verify = heat-solution
-    return verify
+    axes.annotate('Max Error: {}'.format(max_error), xy=(0.2,-0.22), 
+                xycoords='axes fraction', fontsize=9)
+    
+    return max_error
 
 def boundaries():
     '''
@@ -326,5 +332,5 @@ def warming():
     plt.ylabel('Depth (m)')
     plt.title('Ground Temperature: Kangerlussuaq, Greenland')
     plt.grid()
-    plt.savefig('TempProfile3.png')
+    plt.savefig('TempProfile3.png')   
     

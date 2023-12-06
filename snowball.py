@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
 
+'''
+Lab 5: Snowball Earth Model
+
+The function, snowearth(), is where the core algorithm to use an implicit solver for
+calculating heat diffusion to find the temperature at different latitudes of Earth after
+a given amount of time is implemented. example_plot() recreates the plot found in the
+lab assignment. The functions, question2(), question3(), and question4() create the 
+plots to answer questions 2, 3, and 4 of the lab respectively. All other functions were
+provided by Dan :)
+'''
+
 # Import libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -124,19 +135,46 @@ def gen_grid(npoints=18):
 
     return dlat, lats, edge
 
-def snowearth(npoints=18, dt=1, tstop=10000, lamb = 100., S0=1370, emiss=1.0, 
-              albedo=0.3, sphere=True, insolate=True):
+def snowearth(npoints=18, dt=1, tstop=10000, lamb = 100., S0=1370, emiss=1.0, dynamic=False,
+              albedo_gnd=0.3, albedo_ice=0.6, t_init = None, flash_freeze=False,
+              sphere=True, insolate=True, gamma=1.0):
+    '''
+    This function implements an implicit solver for calculating heat diffusion to find the 
+    temperature at different latitudes of Earth after an amount of time determined by tstop
+    and given initial conditions using the parameters outlined below.
+    '''
     '''
     Parameters
     ----------
     npoints : integer, default 18
         Number of latitude grid points.
+    dt : float, default 1
+        Timestep in years.
+    tstop : foat, default 10000
+        Number of years to run model
     lamb : float, default 100
         Set diffusion coefficient.
     S0 : float, default 1370
         Solar constant.
     emiss : float, default 1
         Emissivity of the earth.
+    dynamic : bool, default False
+        Sets a dynamic albedo that changes between ice and no ice when set to True.
+    albedo_gnd : float, default 0.3
+        Albedo when ground is not covered in ice.
+    albedo_ice : float, default 0.6
+        Albedo of when ground is covered in ice.
+    t_init : float or numpy array, default None
+        Initial temperature condition at each latitude.
+    flash_freeze : bool, default False
+        Sets albedo to a constant value of 0.6 when True.
+    sphere : bool, default True
+        Include spherical correction.
+    insolate : bool, default True
+        Include radiative forcing term.
+    gamma : float, default 1.0
+        Insolation multiplier.
+    
 
     Returns
     -------
@@ -157,7 +195,11 @@ def snowearth(npoints=18, dt=1, tstop=10000, lamb = 100., S0=1370, emiss=1.0,
     dt_sec = dt * 365 * 24 * 3600
 
     # Set initial condition 
-    Temp = temp_warm(lats)
+    Temp = np.ones(len(lats))
+    if t_init is None:
+        Temp = temp_warm(lats)
+    else:
+        Temp = Temp*t_init
 
     # Create tri-diag "A" matrix
     A = np.zeros((npoints, npoints))
@@ -188,10 +230,22 @@ def snowearth(npoints=18, dt=1, tstop=10000, lamb = 100., S0=1370, emiss=1.0,
     nsteps = int(tstop/dt)
 
     # Set insolation
-    insol = insolation(S0, lats)
+    insol = gamma * insolation(S0, lats)
+
+    # Set albedo
+    if flash_freeze:
+        albedo = np.ones(len(Temp)) * 0.6
+    else:
+        albedo = np.ones(len(Temp)) * 0.3
 
     # Solve!
     for i in range(nsteps):
+        if dynamic:
+            # Add dynamic albedo
+            loc_ice = Temp <= -10
+            albedo[loc_ice] = albedo_ice
+            albedo[~loc_ice] = albedo_gnd
+
         if sphere:
             # Add spherical correction
             spherecorr = lamb*dt_sec*np.matmul(B, Temp)*dAxz
@@ -201,13 +255,18 @@ def snowearth(npoints=18, dt=1, tstop=10000, lamb = 100., S0=1370, emiss=1.0,
             # Add insolation term
             radiative = (1-albedo)*insol - emiss*sigma*(Temp+273)**4
             Temp += dt_sec * radiative / (rho*C*mxlyr)
-        
+
+        # Calculate temperature
         Temp = np.matmul(Linv, Temp) 
 
     return lats, Temp
 
 
 def example_plot():
+    '''
+    This function creates a plot to validate the model solution against Figure 1 
+    of the lab assignment document.
+    '''
     # Basic Diffusion
     lats, temp1 = snowearth(sphere=False, insolate=False)
     # Diff + spherical
@@ -229,9 +288,15 @@ def example_plot():
     plt.savefig('fig1.png')
 
 def question2():
+    '''
+    This function creates the plots to answer question 3 of the lab.
+    '''
+
+    # Create array of lambdas and emissivities
     lambs = [0, 50, 100, 150]
     emisses = [0, 0.25, 0.5, 0.75, 1]
 
+    # Calculate solution for each lamba value
     for i in range(len(lambs)):
         lats, temp = snowearth(lamb=lambs[i])
         plt.figure()
@@ -241,6 +306,7 @@ def question2():
         plt.title(f'Diffusivity = {lambs[i]}')
         plt.savefig(f'fig2_{i}.png')
 
+    # Calculate solution for each emissivity value
     for i in range(len(emisses)):
         lats, temp = snowearth(emiss=emisses[i])
         plt.figure()
@@ -249,9 +315,13 @@ def question2():
         plt.ylabel('Temperature (Degrees C)')
         plt.title(f'Emissivity = {emisses[i]}')
         plt.savefig(f'fig3_{i}.png')
-
+    
+    # Reproduce warm-Earth 
     lats, temp = snowearth(lamb=55, emiss=0.72)
+    # Initial condition
     warm = temp_warm(lats)
+
+    # Plot
     plt.figure()
     plt.plot(lats, temp, label='Diffusivity = 55, Emissivity = 0.72')
     plt.plot(lats, warm, label='Initial Condition')
@@ -260,3 +330,58 @@ def question2():
     plt.title('Warm Earth Equilibrium')
     plt.legend()
     plt.savefig('fig4.png')
+
+
+def question3():
+    '''
+    This function creates the plots to answer question 3 of the lab.
+    '''
+    # Hot Earth
+    lats, temp1 = snowearth(lamb=55, emiss=0.72, t_init=60, dynamic=True)
+    # Cold Earth
+    lats, temp2 = snowearth(lamb=55, emiss=0.72, t_init=-60, dynamic=True)
+    # Flash Freeze
+    lats, temp3 = snowearth(lamb=55, emiss=0.72, flash_freeze=True)
+    # Initial Condition
+    warm = temp_warm(lats)
+
+    # Plot
+    plt.figure()
+    plt.plot(lats, temp1, label='Warm Earth')
+    plt.plot(lats, temp2, label='Cold Earth')
+    plt.plot(lats, temp3, label='Flash Freeze')
+    plt.plot(lats, warm, label='Initial Condition')
+    plt.xlabel('Latitude')
+    plt.ylabel('Temperature (Degrees C)')
+    plt.legend()
+    plt.savefig('fig5.png')
+
+
+def question4():
+    '''
+    This function creates the plots to answer question 4 of the lab.
+    '''
+    # Create array of incrementing and decrementing gammas
+    gammas = np.arange(0.4, 1.45, 0.05)
+    gammas = np.append(gammas, np.arange(1.4, 0.35, -0.05))
+
+    # Initialize array for average temperatures
+    avg_temp = np.zeros(len(gammas))
+    
+    # Calculate inital average equilibrium temperature
+    lats, temp = snowearth(lamb=55, emiss=0.72, gamma=gammas[0], t_init=-60, dynamic=True, npoints=50)
+    avg_temp[0] = np.mean(temp)
+    
+    # Find average equilibrium temperature for all gammas
+    for i in range(1,len(gammas)):
+        lats, temp = snowearth(lamb=55, emiss=0.72, gamma=gammas[i], t_init=temp, dynamic=True, npoints=50)
+        avg_temp[i] = np.mean(temp)
+        
+    # Plot
+    plt.figure()
+    plt.plot(gammas[0:int(len(gammas)/2)], avg_temp[0:int(len(gammas)/2)], label='Increasing Gammas')
+    plt.plot(gammas[int(len(gammas)/2):len(gammas)], avg_temp[int(len(gammas)/2):len(gammas)], label='Decreasing Gammas')
+    plt.xlabel('Gamma')
+    plt.ylabel('Average Temperature')
+    plt.legend()
+    plt.savefig('fig6.png')

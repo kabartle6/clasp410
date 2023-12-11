@@ -148,7 +148,7 @@ for i in range(len(slope_list)):
 plt.figure()
 plt.plot(slope_list, melt_list)
 plt.xlabel('Glacier Slope')
-plt.ylabel('Change in Glacier Terminus Position from 1870 to 2023')
+plt.ylabel('Change in Glacier Terminus Position from 1870 to 2023 (km)')
 plt.savefig('melt2.png')
 
 '''

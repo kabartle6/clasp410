@@ -3,7 +3,7 @@
 '''
 Final Project
 
-The functions, forcing, transient temp and glacier melt, calculate the radiative forcing, 
+The functions, forcing, transient_temp and glacier_melt, calculate the radiative forcing, 
 transient temperature change, and change in glacier length caused by increasing CO2 
 concentrations. Run this script to create the plots for my final project.
 '''
